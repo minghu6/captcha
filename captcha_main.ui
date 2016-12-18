@@ -88,6 +88,13 @@
      <height>23</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuAuthon">
+    <property name="title">
+     <string>Author</string>
+    </property>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuAuthon"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

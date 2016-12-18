@@ -17,14 +17,12 @@ class Ui_MainWindow(object):
         self.lcdNumber = QtWidgets.QLCDNumber(self.centralwidget)
         self.lcdNumber.setGeometry(QtCore.QRect(20, 260, 91, 31))
         font = QtGui.QFont()
+        font.setPointSize(16)
         font.setBold(True)
         font.setWeight(75)
         font.setKerning(False)
-        font.setPixelSize(8)
         self.lcdNumber.setFont(font)
         self.lcdNumber.setObjectName("lcdNumber")
-        self.lcdNumber.display('1024')
-
         self.graphicsView = QtWidgets.QGraphicsView(self.centralwidget)
         self.graphicsView.setGeometry(QtCore.QRect(20, 40, 256, 192))
         self.graphicsView.setObjectName("graphicsView")
@@ -38,11 +36,17 @@ class Ui_MainWindow(object):
         self.pushButton.setGeometry(QtCore.QRect(450, 210, 271, 23))
         self.pushButton.setObjectName("pushButton")
         MainWindow.setCentralWidget(self.centralwidget)
-
-
+        self.menubar = MainWindows_label(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 23))
+        self.menubar.setObjectName("menubar")
+        self.menuAuthon = QtWidgets.QMenu(self.menubar)
+        self.menuAuthon.setObjectName("menuAuthon")
+        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.menuAuthon.addSeparator()
+        self.menubar.addAction(self.menuAuthon.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -52,6 +56,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "TextLabel"))
         self.pushButton.setText(_translate("MainWindow", "PushButton"))
+        self.menuAuthon.setTitle(_translate("MainWindow", "Author"))
 
 
 

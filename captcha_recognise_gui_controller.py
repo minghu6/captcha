@@ -10,6 +10,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtNetwork import QNetworkCookie
 from PyQt5.QtWidgets import QGridLayout
 
+from minghu6.graphic.captcha.get_image import get_image
 from minghu6.graphic.captcha.recognise import tesseract
 from minghu6.graphic.captcha.url_captcha import url_captcha_dict
 
@@ -75,6 +76,7 @@ class Ui_MainWindow():
         self.menuMenu.addAction(self.actionAuthor)
         self.menubar.addAction(self.menuMenu.menuAction())
 
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -123,31 +125,36 @@ class Ui_MainWindow():
             # load url into browser frame
             if not hasattr(self, 'session_dict'):
                self.session_dict = {}
-
+            #self.session_dict = {}
             session1 = self.session_dict.get(url, None)
             responseSet = url_captcha_dict[url](session=session1)
 
             url_captcha, url_session = responseSet[:2]
             self.params_dict = responseSet[-1]
+            html = responseSet[2]
+
+
+            _, imgPath = get_image(url_captcha, session=url_session)
+            result = ''
+            try:
+
+                result = tesseract(imgPath, limit_config='letters_digits')
+                #result = tesseract(url_captcha)
+            except Exception as ex:
+                print(ex)
+
+            finally:
+                self.result = result
 
             # update url:session
             self.session_dict[url] = url_session
             cookies1 = url_session.cookies.get_dict()
             #cookies1 = responseSet[2]
-            print(url_captcha)
-            print(cookies1)
-            try:
-                result = tesseract(url_captcha, session=url_session)
-                #result = tesseract(url_captcha)
-            except Exception as ex:
-                print(ex)
-                result=''
-            finally:
-                self.result = result
-                self.url_session = url_session
+
+
 
             scene = QtWidgets.QGraphicsScene()
-            image=QtGui.QPixmap('captcha')
+            image=QtGui.QPixmap(imgPath)
             scene.addPixmap(image)
             self.raw_captcha_view.setScene(scene)
 
@@ -155,19 +162,34 @@ class Ui_MainWindow():
             self.captcha_text.setText(result)
 
             cookieStore = self.browser.page().profile().cookieStore()
-            array_key = QByteArray(' '.join(cookies1.keys()).encode())
-            array_value = QByteArray(' '.join(cookies1.values()).encode())
-            cookies2=QNetworkCookie(array_key, array_value)
-            print(cookies2.value(), array_key, array_value, cookies1)
-            cookieStore.setCookie(cookies2, qurl)
-            self.browser.load(qurl)
+            #cookieStore.deleteAllCookies()
+
+            cookies2=QNetworkCookie()
+            for name, value in cookies1.items():
+                #print(name, value)
+                cookies2.setName(name.encode())
+                cookies2.setValue(value.encode())
+                cookies2.setDomain(url)
+                cookies2.setPath(url)
+
+                cookieStore.setCookie(cookies2, qurl)
+
+
+            #print(cookieStore.loadAllCookies())
+
+
+            #self.browser.load(qurl)
+            self.browser.setHtml(html, qurl)
 
         def simulate_logon_func():
 
             from minghu6.graphic.captcha.url_captcha import CAPTCHA_ID
             self.params_dict[CAPTCHA_ID] = self.result
-            html = url_logon_dict[self.url](self.url_session, **self.params_dict)
-            self.browser.setHtml(html)
+
+            html = url_logon_dict[self.url](self.session_dict[self.url],
+                                            **self.params_dict)
+
+            self.browser.setHtml(html, QUrl(self.url))
 
 
         self.url_input_line.returnPressed.connect(url_input_line_func)
@@ -178,9 +200,9 @@ class Ui_MainWindow():
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         #self.digit_captcha_label.setText(_translate("MainWindow", "digit captcha"))
         self.url_input_label.setText(_translate("MainWindow", "Url"))
-        self.captcha_label.setText(_translate("MainWindow", "other catcha"))
-        self.menuMenu.setTitle(_translate("MainWindow", "Menu"))
-        self.actionAuthor.setText(_translate("MainWindow", "Author"))
+        self.captcha_label.setText(_translate("MainWindow", "catcha"))
+        self.menuMenu.setTitle(_translate("MainWindow", "Author"))
+        self.actionAuthor.setText(_translate("MainWindow", "庄&&刘&&冯"))
 
 
 
