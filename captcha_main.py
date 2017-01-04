@@ -59,8 +59,7 @@ class Ui_MainWindow(object):
         self.menuAuthon.setTitle(_translate("MainWindow", "Author"))
 
 
-
-if __name__ == "__main__":
+def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
@@ -69,3 +68,6 @@ if __name__ == "__main__":
     MainWindow.show()
     sys.exit(app.exec_())
 
+if __name__ == "__main__":
+
+    main()

@@ -115,9 +115,15 @@ class Ui_MainWindow():
 
 
     def setSlot(self):
-        def url_input_line_func():
+
+        self.url_input_line.returnPressed.connect(self.url_input_line_func)
+        self.simulate_logon_btn.clicked.connect(self.simulate_logon_func)
+    def url_input_line_func(self):
             url = self.url_input_line.text()
             self.url = url
+            with open('.url', 'w') as fr:
+                fr.write(url)
+
             qurl = QUrl(url)
 
 
@@ -181,19 +187,16 @@ class Ui_MainWindow():
             #self.browser.load(qurl)
             self.browser.setHtml(html, qurl)
 
-        def simulate_logon_func():
 
-            from minghu6.graphic.captcha.url_captcha import CAPTCHA_ID
-            self.params_dict[CAPTCHA_ID] = self.result
+    def simulate_logon_func(self):
+        from minghu6.graphic.captcha.url_captcha import CAPTCHA_ID
+        self.params_dict[CAPTCHA_ID] = self.result
 
-            html = url_logon_dict[self.url](self.session_dict[self.url],
-                                            **self.params_dict)
+        html = url_logon_dict[self.url](self.session_dict[self.url],
+                                        **self.params_dict)
 
-            self.browser.setHtml(html, QUrl(self.url))
-
-
-        self.url_input_line.returnPressed.connect(url_input_line_func)
-        self.simulate_logon_btn.clicked.connect(simulate_logon_func)
+        self.browser.setHtml(html, QUrl(self.url))
+        self.session_dict[self.url] = None
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -205,16 +208,27 @@ class Ui_MainWindow():
         self.actionAuthor.setText(_translate("MainWindow", "庄&&刘&&冯"))
 
 
-
-
-
-
-if __name__ == "__main__":
+def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    if len(sys.argv) > 1 and sys.argv[1]!='':
+        ui.url = sys.argv[1]
+        ui.url_input_line.setText(ui.url)
+        ui.url_input_line_func()
+
     MainWindow.show()
 
-    sys.exit(app.exec_())
+    app.exec_()
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    main()
